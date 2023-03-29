@@ -4,24 +4,25 @@ import textwrap
 # Connection Strings
 DATABASE_NAME = ''
 
-connection_string = ("Driver={SQL Server Native Client 11.0};"
-                     "Server=GHDEVVMSRV04;"
+connection_string = ("Driver={SQL Server};"
+                     "Server=GIDEVVMSRV04;"
                      "Database=SGCadasterSystem;"
-                     "Trusted_Connection=yes;"
+                     "Trusted_Connection=no;"
                      "uid=sa;"
                      "pwd=s8_@dm1n;")
 
+
+# Connect to Database
 connect = odbc.connect(connection_string)
 print(connect)
 
 
+# Run test query
+cursor = connect.cursor()
+cursor.execute('SELECT TOP (3) *  FROM [SGCadasterSystem].[dbo].[FORM_SGDocumentPages]')
 
-#cursor = connect.cursor()
-#cursor.execute('SELECT TOP (3) *  FROM [SGCadasterSystem].[dbo].[FORM_SGDocumentPages]')
-
-#for row in cursor:
-#    print('row = %r' % (row,))
+for row in cursor:
+    print('row = %r' % (row,))
 
 
-# Connect to Database
 
