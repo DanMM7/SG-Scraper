@@ -1,6 +1,7 @@
 import pypyodbc as odbc
 import textwrap
 
+
 # Connection Strings
 DATABASE_NAME = ''
 
@@ -14,15 +15,20 @@ connection_string = ("Driver={SQL Server};"
 
 # Connect to Database
 connect = odbc.connect(connection_string)
-print(connect)
 
 
-# Run test query
-cursor = connect.cursor()
-cursor.execute('SELECT TOP (3) *  FROM [SGCadasterSystem].[dbo].[FORM_SGDocumentPages]')
+""" Run test query
+    print(connect)
+    cursor = connect.cursor()
+    cursor.execute('SELECT TOP (3) *  FROM [SGCadasterSystem].[dbo].[FORM_SGDocumentPages]')
 
-for row in cursor:
-    print('row = %r' % (row,))
+    for row in cursor:
+        print('row = %r' % (row,))
 
+    cursor = connect.cursor()
+    cursor.execute('SELECT * FROM [SGCadasterSystem].[dbo].[LK_SGOfficeCodes] WHERE [SGOfficeUnitCode] IS NOT NULL AND PK_ID IN (1,2,8);')
+
+    for row in cursor:
+        print('row = %r' % (row,))"""
 
 
