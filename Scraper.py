@@ -111,8 +111,8 @@ if __name__ == '__main__':
 
                 # loop currentitem in Webpage
                 for currentitem in DataFromWeb:
-                    # if currentitem [0] = Doc No. (Do nothing)
-                    if currentitem [0] = 'DOCUMENT NO':
+                    # if currentitem [0] = 'DOCUMENT NO': (Do nothing)
+                    if currentitem [0]:
                         break
                     else:
                         # else Split text, 
@@ -147,7 +147,8 @@ if __name__ == '__main__':
         DocNumber = LoopIndex / ProcessingYear
         QueryResult = Display_SGDocument()
 
-        if QueryResult [0][0] = 0:
+        # if QueryResult [0][0] = 0:
+        if QueryResult [0][0]:
             # Wait 3 second
 
             # Go to web page
@@ -166,9 +167,9 @@ if __name__ == '__main__':
                 except Exception as e:
                     pass
 
-             DataFromWeb = ScapePage(url)
+            DataFromWeb = ScapePage(url)
 
-                         # Write to FORM_SGDocuments if Data for Web is > 1
+            # Write to FORM_SGDocuments if Data for Web is > 1
             if DataFromWeb.RowsCount > 1:
                 SGDocument()
 
@@ -178,8 +179,8 @@ if __name__ == '__main__':
 
                 # loop currentitem in Webpage
                 for currentitem in DataFromWeb:
-                    # if currentitem [0] = Doc No. (Do nothing)
-                    if currentitem [0] = 'DOCUMENT NO':
+                    # if currentitem [0] = 'DOCUMENT NO': (Do nothing)
+                    if currentitem [0]:
                         break
                     else:
                         # else Split text, 
