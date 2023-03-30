@@ -1,12 +1,11 @@
 import pandas as pd
-import re
 import jpype
 from functools import reduce
 import requests
 from bs4 import BeautifulSoup
-from Connection import connect
-from Execute import SGOfficeCodeResult, MissingDocuments, Display_SGDocument
-from Insert import OfficeOfflineLog, SGDocumentPages, SGDocument
+import pypyodbc as odbc
+import Connection as Conn
+
 
 
 
@@ -35,129 +34,48 @@ def ScapePage(url):
 
 #Main function 
 if __name__ == '__main__':
+
+    # Connection Strings
+    connection_string = ("Driver={SQL Server};"
+                         "Server=GIDEVVMSRV04;"
+                         "Database=SGCadasterSystem;"
+                         "Trusted_Connection=no;"
+                         "uid=sa;"
+                         "pwd=s8_@dm1n;")
+
+
+    # Connect to Database
+    connect = odbc.connect(connection_string)
+
+
     
     # Variables initialization
     url = 'http://csg.drdlr.gov.za/esio/listdocumentfromkey.jsp?'
+    
+    # Store the data from table in a variable
+    office_codes = []
+    office_codes.append(Conn.SGOfficeCodeResult(connect))
 
-
-    office_codes = SGOfficeCodeResult()
 
     # Loop for currentitem in OfficeCodes
     for currentitem in office_codes:
-        # Get all the records from vw_MissingDocuments View
-        MissingDocuments()
-
-        # Loop for currentitem in OfficeCodes
-        for missingDoc in office_codes:
-            missingUrl = url+'office='+missingDoc[sgOfficeCode]+'&sgkey='+missingDoc[DocNr]+'&Submit=Search'
-            # Run Exception Handler if you get Java.sql.SQLException
-            if missingDoc == 'java.sql.SQLException':
-                try: 
-                    OfficeOfflineLog()
-                except jpype.JException(jpype.java.sql.SQLException):
-                    pass
-
-            # Run Exception Handler if you get Error
-            if missingDoc == 'Error':
-                try:
-                    response = requests.get(url)
-                    OfficeOfflineLog()
-                except Exception as e:
-                    pass
-
-            DataFromWeb = ScapePage(url)
-
-            # Write to FORM_SGDocuments if Data for Web is > 1
-            if DataFromWeb.RowsCount > 1:
-                SGDocument()
-
-                DOC_ID = SGDocument()
-
-                FailedCount = 0
-
-                # loop currentitem in Webpage
-                for currentitem in DataFromWeb:
-                    # if currentitem [0] = 'DOCUMENT NO': (Do nothing)
-                    if currentitem [0]:
-                        break
-                    else:
-                        # else Split text, 
-                        TextList = currentitem.split()
-
-                        # AND Write to FORM_SGDocumentPage
-                        SGDocumentPages()
-
-            FailedCount = FailedCount + 1
-
-    ProcessingYear = 2023
-
-
-    for currentitem2 in office_codes:
-        
-        FailedCount = 0
-
-        SGOfficeCode = currentitem2[0]
-
-        StartIndex = 10000000
-
-        if 'file exists':
-            print('read text')
-            LoopIndex = StartIndex - 30
-        else:
-            print('')
-
-        LoopIndex = 0
-
-    while FailedCount < 45:
-        LoopIndex = LoopIndex + 1
-        DocNumber = LoopIndex / ProcessingYear
-        QueryResult = Display_SGDocument()
-
-        # if QueryResult [0][0] = 0:
-        if QueryResult [0][0]:
-            # Wait 3 second
-
-            # Go to web page
+            
+            missingUrl = url+'office='+ '1' +'&sgkey='+ '1' +'&Submit=Search'
 
             # Run Exception Handler if you get Java.sql.SQLException
-            if DocNumber == 'java.sql.SQLException':
-                try: 
-                    OfficeOfflineLog()
-                except Exception as e:
-                    pass
+            try: 
+                missingUrl == 'java.sql.SQLException'
+            except jpype.JException(jpype.java.sql.SQLException):
+                Conn.OfficeOfflineLog(connect)
 
             # Run Exception Handler if you get Error
-            if DocNumber == 'Error':
-                try: 
-                    OfficeOfflineLog()
-                except Exception as e:
-                    pass
+            try:
+                response = requests.get(missingUrl)
+                missingUrl == 'Error'
+            except Exception as e:
+                # Handle the exception here
+                print("An error occurred while trying to connect to the website:", e)
+                Conn.OfficeOfflineLog()
 
-            DataFromWeb = ScapePage(url)
 
-            # Write to FORM_SGDocuments if Data for Web is > 1
-            if DataFromWeb.RowsCount > 1:
-                SGDocument()
-
-                DOC_ID = SGDocument()
-
-                FailedCount = 0
-
-                # loop currentitem in Webpage
-                for currentitem in DataFromWeb:
-                    # if currentitem [0] = 'DOCUMENT NO': (Do nothing)
-                    if currentitem [0]:
-                        break
-                    else:
-                        # else Split text, 
-                        TextList = currentitem.split()
-
-                        # AND Write to FORM_SGDocumentPage
-                        SGDocumentPages()
-            else:
-                FailedCount = FailedCount + 1
-        
-        # Write text to file
-
-    connect.close()
-     
+            DataFromWeb = ScapePage(missingUrl)
