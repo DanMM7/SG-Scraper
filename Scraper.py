@@ -1,47 +1,13 @@
 import pandas as pd
 import re
+import jpype
 from functools import reduce
 import requests
 from bs4 import BeautifulSoup
 from Connection import connect
-from Execute import SGOfficeCodeResult
+from Execute import SGOfficeCodeResult, MissingDocuments, Display_SGDocument
+from Insert import OfficeOfflineLog, SGDocumentPages, SGDocument
 
-
-
-# Display Fetch Office Codes from LK_SGOfficeCodes Table
-def SGOfficeCodeResult():
-    cursor = connect.cursor()
-    cursor.execute('SELECT * FROM [SGCadasterSystem].[dbo].[LK_SGOfficeCodes] WHERE [SGOfficeUnitCode] IS NOT NULL AND PK_ID IN (1,2,8);')
-
-    for row in cursor:
-        print('row = %r' % (row,))
-
-
-
-# Display Fetch Office Codes from LK_SGOfficeCodes Table
-def MissingDocuments():
-    missing = connect.missing()
-    missing.execute('SELECT * FROM [SGCadasterSystem].[dbo].[vw_MissingDocuments] WHERE [SGOfficeCode] = [PK_ID]')
-
-    for row in missing:
-        print('row = %r' % (row,))
-
-
-# Write to FORM_OfficeLog Table if you get Java.sql.SQLException error
-def OfficeOfflineLog():
-    office_codes = connect.cursor()
-    cursor.execute('INSERT INTO [SGCadasterSystem].[dbo].[FORM_OfficeOfflineLog] ([OfficeKey]) VALUES([PK_ID])')
-
-    for row in office_codes:
-        print('row = %r' % (row,))
-
-
-def SGDocumentPages():
-    office_codes = connect.cursor()
-    cursor.execute('INSERT INTO [SGCadasterSystem].[dbo].[FORM_SGDocumentPages] (DocumentID, DocumentLink, [PageNumber], [PageType]) VALUES([DocNr], LTRIM(3, 1, 2)')
-
-    for row in office_codes:
-        print('row = %r' % (row,))
 
 
 def ScapePage(url):
@@ -67,12 +33,11 @@ def ScapePage(url):
 
 
 
-#Main function
+#Main function 
 if __name__ == '__main__':
     
     # Variables initialization
     url = 'http://csg.drdlr.gov.za/esio/listdocumentfromkey.jsp?'
-
 
 
     office_codes = SGOfficeCodeResult()
@@ -89,12 +54,13 @@ if __name__ == '__main__':
             if missingDoc == 'java.sql.SQLException':
                 try: 
                     OfficeOfflineLog()
-                except Exception as e:
+                except jpype.JException(jpype.java.sql.SQLException):
                     pass
 
             # Run Exception Handler if you get Error
             if missingDoc == 'Error':
-                try: 
+                try:
+                    response = requests.get(url)
                     OfficeOfflineLog()
                 except Exception as e:
                     pass
